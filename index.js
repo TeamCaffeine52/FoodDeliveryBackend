@@ -12,23 +12,26 @@ const PORT = process.env.PORT || 8080;
 
 //mongodb connection
 mongoose.set("strictQuery", false);
-mongoose
-  .connect(process.env.MONGODB_URL)
-  .then(() => console.log("Connect to Databse"))
-  .catch((err) => console.log(err, "problem to connect with db"));
-console.log(process.env.MONGODB_URL);
+mongoose.connect(process.env.MONGODB_URL)
+	.then(() => {
+		console.log("Connected to Database")
+
+		//server is ruuning
+		app.listen(PORT, () => console.log("server is running at port : http://localhost:" + PORT));
+	}).catch((err) => {
+		console.log(err, "problem to connect with db")
+	});
 
 //schema
 const userSchema = mongoose.Schema({
-  firstName: String,
-  lastName: String,
-  email: {
-    type: String,
-    unique: true,
-  },
-  password: String,
-  confirmPassword: String,
-  image: String,
+	firstName: String,
+	lastName: String,
+	email: {
+		type: String,
+		unique: true,
+	},
+	password: String,
+	image: String,
 });
 
 //
@@ -36,39 +39,42 @@ const userModel = mongoose.model("user", userSchema);
 
 //api
 app.get("/", (req, res) => {
-  res.send("Server is running");
+  	res.send("Server is running");
 });
 
 //sign up
 app.post("/signup", async (req, res) => {
-//    res.send("working");
-//   // return;
-   console.log(req.body);
-  ///const { email } = req.body;
+   	console.log(req.body);
 
-  try {
-    const data = await userModel.create(req.body);
-    res.send({ message: "Successfully sign up", alert: true ,data});
-  } catch (error) {
-    console.log(error);
-    res.send({ message: "Email id is already register", alert: false })
-  }  
+  	try {
+		const data = await userModel.create(req.body);
+		res.send({ message: "Successfully sign up", success: true ,data});
+  	} catch (error) {
+		console.log(error);
+		res.send({ message: "Email id is already register", success: false })
+  	}
 });
 
 //api login
 app.post("/login", async (req, res) => {
   // console.log(req.body);
-  const { email,password } = req.body;
-  try {
-    const user = await userModel.findOne({ email: email, password:password });
-    console.log(user);
-    res.send({user, message:(user?"Login Successful":"Login Failed")});
-  } catch(error) {
-    console.log(error);
-    console.log("problem to find user at login")
-    res.send({message:"problem to find user",alert:false})
-  }
-
+	const { email,password } = req.body;
+	try {
+		const user = await userModel.findOne({ email: email, password: password });
+		console.log(user);
+		res.send({
+			user,
+			message:(user ? "Login Successful" : "Login Failed"),
+			success:(user ? true : false)
+		});
+		} catch(error) {
+			console.log(error);
+			console.log("problem to find user at login")
+			res.send({
+				message:"problem to find user",
+				success:false,
+			})
+		}
   });
 
   //product section
@@ -148,7 +154,3 @@ app.post("/login", async (req, res) => {
 //     }
 
 //   })
-
-
-  //server is ruuning
-  app.listen(PORT, () => console.log("server is running at port : " + PORT));
