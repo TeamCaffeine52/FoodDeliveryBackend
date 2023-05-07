@@ -1,9 +1,10 @@
-const express = require("express");
-const cors = require("cors");
-const mongoose = require("mongoose");
-const dotenv = require("dotenv").config();
-//const Stripe = require('stripe')
+import express from "express";
+import cors from "cors";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import {cleanUserData} from "./utility/cleanUserData.js";
 
+dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
@@ -47,7 +48,14 @@ app.post("/signup", async (req, res) => {
    	console.log(req.body);
 
   	try {
-		const data = await userModel.create(req.body);
+		const data = await userModel.create({
+			firstName : req.body.firstName,
+			lastName : req.body.lastName,
+			email : req.body.email,
+			password : req.body.password,
+			image : req.body.image,
+		});
+		console.log(data)
 		res.send({ message: "Successfully sign up", success: true ,data});
   	} catch (error) {
 		console.log(error);
@@ -61,7 +69,7 @@ app.post("/login", async (req, res) => {
 	const { email,password } = req.body;
 	try {
 		const user = await userModel.findOne({ email: email, password: password });
-		console.log(user);
+		console.log("user", user);
 		res.send({
 			user,
 			message:(user ? "Login Successful" : "Login Failed"),
