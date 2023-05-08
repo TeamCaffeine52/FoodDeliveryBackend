@@ -2,13 +2,16 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
-import {cleanUserData} from "./utility/cleanUserData.js";
+import { cleanUserData } from "./utility/cleanUserData.js";
+import { userModel } from "./model/user.js";
+import { LoginRouter } from "./router/loginRouter.js";
+import { verifyToken as auth } from "./middleware/authentication.js";
 
 dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
+app.use(LoginRouter);
 
 const PORT = process.env.PORT || 8080;
 
@@ -24,23 +27,9 @@ mongoose.connect(process.env.MONGODB_URL)
 		console.log(err, "problem to connect with db")
 	});
 
-//schema
-const userSchema = mongoose.Schema({
-	firstName: String,
-	lastName: String,
-	email: {
-		type: String,
-		unique: true,
-	},
-	password: String,
-	image: String,
-});
-
-//
-const userModel = mongoose.model("user", userSchema);
 
 //api
-app.get("/", (req, res) => {
+app.get("/", auth, (req, res) => {
   	res.send("Server is running");
 });
 
@@ -63,42 +52,6 @@ app.post("/signup", async (req, res) => {
 		res.send({ message: "Email id is already register", success: false })
   	}
 });
-
-//api login
-app.post("/login", async (req, res) => {
-  // console.log(req.body);
-	const { email,password } = req.body;
-	try {
-		const user = await userModel.findOne({ email: email, password: password });
-		console.log("user", user);
-		if(user)
-		{	
-			const token = jwt.sign({userId: user._id}, 'secret', { expiresIn: '1h' });
-			
-			res.send({
-				token,
-				user,
-				message: "Login Successful",
-				success: true
-			});
-		}
-		else
-		{
-			res.send({
-				user,
-				message: "Login Failed",
-				success: false
-			});
-		}
-		} catch(error) {
-			console.log(error);
-			console.log("problem to find user at login")
-			res.send({
-				message:"problem to find user",
-				success:false,
-			})
-		}
-  });
 
   //product section
 
