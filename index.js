@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 import {cleanUserData} from "./utility/cleanUserData.js";
 
 dotenv.config();
@@ -70,11 +71,25 @@ app.post("/login", async (req, res) => {
 	try {
 		const user = await userModel.findOne({ email: email, password: password });
 		console.log("user", user);
-		res.send({
-			user,
-			message:(user ? "Login Successful" : "Login Failed"),
-			success:(user ? true : false)
-		});
+		if(user)
+		{	
+			const token = jwt.sign({userId: user._id}, 'secret', { expiresIn: '1h' });
+			
+			res.send({
+				token,
+				user,
+				message: "Login Successful",
+				success: true
+			});
+		}
+		else
+		{
+			res.send({
+				user,
+				message: "Login Failed",
+				success: false
+			});
+		}
 		} catch(error) {
 			console.log(error);
 			console.log("problem to find user at login")
