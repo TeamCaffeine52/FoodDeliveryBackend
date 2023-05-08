@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { userModel } from "../model/user.js";
-import jwt from "jsonwebtoken";
+import { userModel } from "../../model/user.js";
 
 const app = express();
 
@@ -10,16 +9,15 @@ app.use(express.json({ limit: "10mb" }));
 
 const LoginRouter = express.Router();
 
-//api login
-LoginRouter.post("/login", async (req, res) => {
+LoginRouter.post("/adminLogin", async (req, res) => {
     // console.log(req.body);
-    const { email,password } = req.body;
+    const { email, password } = req.body;
     try {
-        const user = await userModel.findOne({ email: email, password: password });
+        const user = await userModel.findOne({ email: email, password: password, isAdmin: true });
         console.log("user", user);
         if(user)
         {	
-            const token = jwt.sign({userId: user._id, isAdmin: user.isAdmin}, process.env.JWT_KEY, { expiresIn: '1h' });
+            const token = jwt.sign({userId: user._id}, process.env.JWT_KEY, { expiresIn: '1h' });
             
             res.send({
                 token,
@@ -45,6 +43,5 @@ LoginRouter.post("/login", async (req, res) => {
         })
     }
 });
-
 
 export { LoginRouter };

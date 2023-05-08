@@ -9,6 +9,7 @@ const userSchema = mongoose.Schema({
 	},
 	password: String,
 	image: String,
+	isAdmin: Boolean
 });
 
 //

@@ -3,11 +3,15 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
+import { verifyToken as cAuth } from "./middleware/customerAuthentication.js";
+import { verifyToken as aAuth } from "./middleware/adminAuthentication.js";
 import { SignupRouter } from "./router/signupRoute.js";
 import { LoginRouter } from "./router/loginRouter.js";
 import { HomeRouter } from "./router/homeRouter.js";
 import { OrderRouter } from "./router/orderRouter.js";
-import { verifyToken as auth } from "./middleware/authentication.js";
+import { LoginRouter as adminLoginRouter} from "./router/admin/loginRouter.js";
+import { HomeRouter as adminHomeRouter } from "./router/admin/homeRouter.js";
+import { OrderRouter as adminOrderRouter } from "./router/admin/orderRouter.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 8080;
@@ -17,10 +21,16 @@ app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
 //Routes
+// Customer
 app.use(LoginRouter);
 app.use(SignupRouter);
 app.use(HomeRouter);
-app.use(OrderRouter)
+app.use(OrderRouter);
+
+// Admin
+app.use('/admin', adminLoginRouter);
+app.use('/admin', adminHomeRouter);
+app.use('/admin', adminOrderRouter);
 
 
 //mongodb connection
@@ -37,9 +47,45 @@ mongoose.connect(process.env.MONGODB_URL)
 
 
 //api
-app.get("/", auth, (req, res) => {
+app.get("/", (req, res) => {
   	res.send("Server is running");
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //sign up
 

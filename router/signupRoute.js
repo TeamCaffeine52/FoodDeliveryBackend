@@ -18,7 +18,7 @@ SignupRouter.post("/signup", async (req, res) => {
         password : req.body.password,
         image : req.body.image,
     }
-    if(userData.firstName && userData.lastName && userData.email && userData.password && userData.image ){
+    if(userData.firstName && userData.lastName && userData.email && userData.password){
         try {
             const result = await userModel.create(userData);
     

@@ -3,6 +3,9 @@ import mongoose from "mongoose";
 const orderSchema = mongoose.Schema({
 	customerId: String, //
     totalPrice: Number,
+    deliveryAddress: String,
+    contactNumber: String,
+    isCompleted: Boolean,
     
     items: [
         {
