@@ -46,4 +46,4 @@ LoginRouter.post("/login", async (req, res) => {
         }
     });
 
-export {LoginRouter};
+export { LoginRouter };

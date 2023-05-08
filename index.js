@@ -2,18 +2,26 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import { cleanUserData } from "./utility/cleanUserData.js";
-import { userModel } from "./model/user.js";
+
+import { SignupRouter } from "./router/signupRoute.js";
 import { LoginRouter } from "./router/loginRouter.js";
+import { HomeRouter } from "./router/homeRouter.js";
+import { OrderRouter } from "./router/orderRouter.js";
 import { verifyToken as auth } from "./middleware/authentication.js";
 
 dotenv.config();
+const PORT = process.env.PORT || 8080;
+
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
-app.use(LoginRouter);
 
-const PORT = process.env.PORT || 8080;
+//Routes
+app.use(LoginRouter);
+app.use(SignupRouter);
+app.use(HomeRouter);
+app.use(OrderRouter)
+
 
 //mongodb connection
 mongoose.set("strictQuery", false);
@@ -21,7 +29,7 @@ mongoose.connect(process.env.MONGODB_URL)
 	.then(() => {
 		console.log("Connected to Database")
 
-		//server is ruuning
+		//server is running
 		app.listen(PORT, () => console.log("server is running at port : http://localhost:" + PORT));
 	}).catch((err) => {
 		console.log(err, "problem to connect with db")
@@ -34,24 +42,6 @@ app.get("/", auth, (req, res) => {
 });
 
 //sign up
-app.post("/signup", async (req, res) => {
-   	console.log(req.body);
-
-  	try {
-		const data = await userModel.create({
-			firstName : req.body.firstName,
-			lastName : req.body.lastName,
-			email : req.body.email,
-			password : req.body.password,
-			image : req.body.image,
-		});
-		console.log(data)
-		res.send({ message: "Successfully sign up", success: true ,data});
-  	} catch (error) {
-		console.log(error);
-		res.send({ message: "Email id is already register", success: false })
-  	}
-});
 
   //product section
 
