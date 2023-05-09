@@ -27,16 +27,35 @@ OrderRouter.post("/addOrder", async (req, res) => {
     const orderData = {
         customerId, deliveryAddress, contactNumber, items
     };
+    const requestedProducts = [];
 
     if(customerId && deliveryAddress && contactNumber && (items.length > 0)){
         try {
-            let totalPrice = 0;
-            
             for(let i=0;i<items.length;i++)
             {
                 const element = items[i];
                 const product = await productModel.findOne({_id: element.productId});
+                requestedProducts.push(product);
+
+                if(product.productQuantity < element.purchasedQuantity)
+                {
+                    res.send({ message: "Invalid Quantity", success: false });
+                    return;
+                }
+
                 totalPrice += product.productPrice * element.purchasedQuantity;
+            }
+
+            let totalPrice = 0;
+
+            for(let i=0;i<requestedProducts.length;i++)
+            {   
+                const filter = { _id: requestedProducts[i]._id };
+                const update =  { 
+                    productQuantity : requestedProducts[i].productQuantity - items[i].purchasedQuantity
+                }
+            
+                const result = await productModel.findOneAndUpdate(filter, update);
             }
 
             orderData.totalPrice = totalPrice;
