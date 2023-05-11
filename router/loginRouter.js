@@ -15,7 +15,7 @@ LoginRouter.post("/login", async (req, res) => {
     // console.log(req.body);
     const { email,password } = req.body;
     try {
-        const user = await userModel.findOne({ email: email, password: password });
+        const user = await userModel.findOne({ email: email, password: password, isAdmin: false});
         console.log("user", user);
         if(user)
         {	

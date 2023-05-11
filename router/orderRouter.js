@@ -19,17 +19,14 @@ OrderRouter.get("/getMyOrders", async (req, res) => {
 });
 
 
-OrderRouter.post("/addOrder", async (req, res) => {
-    const { customerId, deliveryAddress, contactNumber, items } = req.body;
+OrderRouter.post("/addOrder", auth, async (req, res) => {
+    const { deliveryAddress, items } = req.body;
+    console.log(req.user);
+    const customerId = req.user.userId;
 
-    // customerId = req.user.userId;
-
-    const orderData = {
-        customerId, deliveryAddress, contactNumber, items
-    };
     const requestedProducts = [];
 
-    if(customerId && deliveryAddress && contactNumber && (items.length > 0)){
+    if(customerId && deliveryAddress && (items.length > 0)){
         try {
             for(let i=0;i<items.length;i++)
             {
@@ -61,6 +58,10 @@ OrderRouter.post("/addOrder", async (req, res) => {
             orderData.totalPrice = totalPrice;
             console.log(orderData);
 
+            const orderData = {
+                customerId, deliveryAddress, items
+            };
+            
             const result = await orderModel.create(orderData);
 
             res.send({ message: "Order Submitted!", success: true ,result });
