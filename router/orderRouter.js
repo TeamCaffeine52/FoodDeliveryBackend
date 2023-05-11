@@ -23,28 +23,41 @@ OrderRouter.post("/addOrder", auth, async (req, res) => {
     const { deliveryAddress, items } = req.body;
     console.log(req.user);
     const customerId = req.user.userId;
-
     const requestedProducts = [];
 
-    if(customerId && deliveryAddress && (items.length > 0)){
+    if(!deliveryAddress)
+    {
+        res.send({ message: "Fill out required fields", success: false })
+        return;
+    }
+
+    const houseCheck = deliveryAddress.hasOwnProperty("houseNo");
+    const streetCheck = deliveryAddress.hasOwnProperty("street");
+    const landmarkCheck = deliveryAddress.hasOwnProperty("landMark");
+    const pincodeCheck = deliveryAddress.hasOwnProperty("pinCode");
+    const contactCheck = deliveryAddress.hasOwnProperty("contactNumber");
+    
+    console.log(req.body);
+
+    if(houseCheck && streetCheck && landmarkCheck && pincodeCheck && contactCheck && items.length > 0)
+    {
         try {
+            let totalPrice = 0;
             for(let i=0;i<items.length;i++)
             {
                 const element = items[i];
                 const product = await productModel.findOne({_id: element.productId});
                 requestedProducts.push(product);
-
+    
                 if(product.productQuantity < element.purchasedQuantity)
                 {
                     res.send({ message: "Invalid Quantity", success: false });
                     return;
                 }
-
+    
                 totalPrice += product.productPrice * element.purchasedQuantity;
             }
-
-            let totalPrice = 0;
-
+    
             for(let i=0;i<requestedProducts.length;i++)
             {   
                 const filter = { _id: requestedProducts[i]._id };
@@ -54,16 +67,24 @@ OrderRouter.post("/addOrder", auth, async (req, res) => {
             
                 const result = await productModel.findOneAndUpdate(filter, update);
             }
+    
+            const orderData = {
+                customerId,
+                totalPrice: totalPrice,
+                deliveryAddress:{
+                    houseNo: deliveryAddress.houseNo,
+                    street: deliveryAddress.street,
+                    landMark: deliveryAddress.landMark,
+                    pinCode: deliveryAddress.pinCode,
+                    contactNumber: deliveryAddress.contactNumber,
+                },
+                items,
+            };
 
             orderData.totalPrice = totalPrice;
-            console.log(orderData);
-
-            const orderData = {
-                customerId, deliveryAddress, items
-            };
-            
+    
             const result = await orderModel.create(orderData);
-
+    
             res.send({ message: "Order Submitted!", success: true ,result });
         } catch (error) {
             console.log(error);
@@ -71,7 +92,7 @@ OrderRouter.post("/addOrder", auth, async (req, res) => {
         }
     }
     else{
-        res.send({ message: "Fill out required fields", success: false })
+        res.send({ message: "Fill out required field", success: false })
     }
 });
 
