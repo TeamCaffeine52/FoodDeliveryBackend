@@ -16,7 +16,7 @@ SignupRouter.post("/signup", async (req, res) => {
         lastName : req.body.lastName,
         email : req.body.email,
         password : req.body.password,
-        image : req.body.image,
+        // image : req.body.image,
         isAdmin : false
     }
     if(userData.firstName && userData.lastName && userData.email && userData.password){

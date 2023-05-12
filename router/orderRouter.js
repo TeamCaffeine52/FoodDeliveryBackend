@@ -11,8 +11,7 @@ app.use(express.json({ limit: "10mb" }));
 
 const OrderRouter = express.Router();
 
-OrderRouter.get("/getMyOrders", async (req, res) => {
-    // console.log(req.user);
+OrderRouter.get("/getMyOrders", auth, async (req, res) => {
     const allOrders = await orderModel.find({customerId : req.user.userId});
 
     res.send(allOrders);

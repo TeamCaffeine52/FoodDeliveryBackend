@@ -75,7 +75,7 @@ HomeRouter.post("/addProduct", async (req, res) => {
     }
 });
 
-HomeRouter.post("/updateProductStock", async (req, res) => {
+HomeRouter.post("/updateProduct", async (req, res) => {
     const _id = req.body._id;
     const price = req.body.productPrice;
     const stock = req.body.productQuantity;
@@ -87,20 +87,19 @@ HomeRouter.post("/updateProductStock", async (req, res) => {
     }
 
     const responseData = {}
-    const result = await productModel.findOneAndUpdate(filter, update, (err, doc) => {
-        if(err)
-        {
-            responseData.success = false;
-            responseData.message = "Can't Update the Product data";
-        } else
-        {
-            responseData.success = true;
-            responseData.message = "Successfully updated Product Details";
-        }
-    });
+    const result = await productModel.findOneAndUpdate(filter, update, {new: true});
     
+    if(result.productQuantity === update.productPrice && result.productQuantity === update.productQuantity)
+    {
+        responseData.success = false;
+        responseData.message = "Can't Update the Product data";
+    } else
+    {
+        responseData.success = true;
+        responseData.message = "Successfully updated Product Details";
+    }
 
-    res.send(result);
+    res.send(responseData);
 
 });
 
