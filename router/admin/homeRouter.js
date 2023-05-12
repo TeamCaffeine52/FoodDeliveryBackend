@@ -32,13 +32,10 @@ HomeRouter.post("/addCategory", async (req, res) => {
         categoryName, categoryImage
     };
 
-    console.log(categoryData);
-
     if(categoryName && categoryImage){
         try {
             const result = await categoryModel.create(categoryData);
     
-            console.log(result)
             res.send({ message: "Successfully Added Category", success: true ,result});
         } catch (error) {
             console.log(error);
