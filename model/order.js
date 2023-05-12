@@ -4,6 +4,8 @@ const orderSchema = mongoose.Schema({
 	customerId: String, //
     totalPrice: Number,
     deliveryAddress: {
+        firstName: String,
+        lastName: String,
         houseNo: Number,
         street: String,
         landMark: String,

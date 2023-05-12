@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { productModel } from "../model/product.js";
 import { orderModel } from "../model/order.js";
+import { userModel } from "../model/user.js";
 import { verifyToken as auth } from "../middleware/customerAuthentication.js";
 
 const app = express();
@@ -13,7 +14,7 @@ const OrderRouter = express.Router();
 
 OrderRouter.get("/getMyOrders", auth, async (req, res) => {
     const allOrders = await orderModel.find({customerId : req.user.userId});
-
+    
     res.send(allOrders);
 });
 
@@ -67,15 +68,20 @@ OrderRouter.post("/addOrder", auth, async (req, res) => {
                 const result = await productModel.findOneAndUpdate(filter, update);
             }
     
+            const user = await userModel.findOne({_id: customerId});
+
             const orderData = {
                 customerId,
                 totalPrice: totalPrice,
                 deliveryAddress:{
+                    firstName: user.firstName,
+                    lastName: user.lastName,
                     houseNo: deliveryAddress.houseNo,
                     street: deliveryAddress.street,
                     landMark: deliveryAddress.landMark,
                     pinCode: deliveryAddress.pinCode,
                     contactNumber: deliveryAddress.contactNumber,
+                    isCompleted: false,
                 },
                 items,
             };

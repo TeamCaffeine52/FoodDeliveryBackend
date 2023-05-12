@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { orderModel } from "../../model/order.js";
+import { userModel } from "../../model/user.js";
 
 const app = express();
 
@@ -11,7 +12,6 @@ const OrderRouter = express.Router();
 
 OrderRouter.post("/getAllOrders", async (req, res) => {
     const allOrders = await orderModel.find();
-    
     res.send(allOrders);
 });
 
@@ -22,21 +22,22 @@ OrderRouter.post("/updateOrderStatus", async (req, res) => {
     {
         const filter = { _id: _id };
         const update =  { 
-            isCompleted : isCompleted
+            // isCompleted : isCompleted,
+            isCompleted : true, // force completion
         }
     
         const responseData = {}
-        const result = await orderModel.findOneAndUpdate(filter, update, (err, doc) => {
-            if(err)
-            {
-                responseData.success = false;
-                responseData.message = "Can't Update Order Status";
-            } else
-            {
-                responseData.success = true;
-                responseData.message = "Successfully updated Order Status";
-            }
-        });
+        const result = await orderModel.findOneAndUpdate(filter, update, {new: true});
+
+        if(result.isCompleted === true)
+        {
+            responseData.success = false;
+            responseData.message = "Can't Update Order Status";
+        } else
+        {
+            responseData.success = true;
+            responseData.message = "Successfully updated Order Status";
+        }
     }
     else
     {
