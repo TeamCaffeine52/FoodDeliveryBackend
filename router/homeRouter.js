@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { productModel } from "../model/product.js";
 import { categoryModel } from "../model/category.js";
+import { verifyToken as auth } from "../middleware/customerAuthentication.js";
 
 const app = express();
 
@@ -10,7 +11,7 @@ app.use(express.json({ limit: "10mb" }));
 
 const HomeRouter = express.Router();
 
-HomeRouter.get("/getAllProducts", async (req, res) => {
+HomeRouter.get("/getAllProducts", auth, async (req, res) => {
     // console.log(req.body);
     
     const allProducts = await productModel.find();
@@ -18,7 +19,7 @@ HomeRouter.get("/getAllProducts", async (req, res) => {
     res.send(allProducts);
 });
 
-HomeRouter.get("/getAllCategory", async (req, res) => {
+HomeRouter.get("/getAllCategory", auth, async (req, res) => {
     // console.log(req.body);
     
     const allCategory = await categoryModel.find();

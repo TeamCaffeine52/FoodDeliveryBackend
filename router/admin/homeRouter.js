@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { categoryModel } from "../../model/category.js";
 import { productModel } from "../../model/product.js";
+import { verifyToken as auth } from "../../middleware/adminAuthentication.js";
 
 const app = express();
 
@@ -10,7 +11,7 @@ app.use(express.json({ limit: "10mb" }));
 
 const HomeRouter = express.Router();
 
-HomeRouter.get("/getAllProducts", async (req, res) => {
+HomeRouter.get("/getAllProducts", auth, async (req, res) => {
     // console.log(req.body);
     
     const allProducts = await productModel.find();
@@ -18,7 +19,7 @@ HomeRouter.get("/getAllProducts", async (req, res) => {
     res.send(allProducts);
 });
 
-HomeRouter.get("/getAllCategory", async (req, res) => {
+HomeRouter.get("/getAllCategory", auth, async (req, res) => {
     // console.log(req.body);
     
     const allCategory = await categoryModel.find();
@@ -26,7 +27,7 @@ HomeRouter.get("/getAllCategory", async (req, res) => {
     res.send(allCategory)
 });
 
-HomeRouter.post("/addCategory", async (req, res) => {
+HomeRouter.post("/addCategory", auth, async (req, res) => {
     const { categoryName, categoryImage } = req.body;
     const categoryData = {
         categoryName, categoryImage
@@ -47,9 +48,7 @@ HomeRouter.post("/addCategory", async (req, res) => {
     }
 });
 
-HomeRouter.post("/addProduct", async (req, res) => {
-    console.log(req.body);
-
+HomeRouter.post("/addProduct", auth, async (req, res) => {
     const { productName, productDetails, productImage, productQuantity, productPrice, categoryId } = req.body;
 
     const productData = {
@@ -60,7 +59,6 @@ HomeRouter.post("/addProduct", async (req, res) => {
         try {
             const result = await productModel.create(productData);
     
-            console.log(result)
             res.send({ message: "Successfully Added Product", success: true ,result});
         } catch (error) {
             console.log(error);
@@ -72,7 +70,7 @@ HomeRouter.post("/addProduct", async (req, res) => {
     }
 });
 
-HomeRouter.post("/updateProduct", async (req, res) => {
+HomeRouter.post("/updateProduct", auth, async (req, res) => {
     const _id = req.body._id;
     const price = req.body.productPrice;
     const stock = req.body.productQuantity;

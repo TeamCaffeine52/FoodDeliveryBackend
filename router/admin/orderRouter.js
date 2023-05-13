@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { orderModel } from "../../model/order.js";
-import { userModel } from "../../model/user.js";
+import { verifyToken as auth } from "../../middleware/adminAuthentication.js";
 
 const app = express();
 
@@ -10,12 +10,12 @@ app.use(express.json({ limit: "10mb" }));
 
 const OrderRouter = express.Router();
 
-OrderRouter.get("/getAllOrders", async (req, res) => {
+OrderRouter.get("/getAllOrders", auth, async (req, res) => {
     const allOrders = await orderModel.find();
     res.send(allOrders);
 });
 
-OrderRouter.post("/updateOrderStatus", async (req, res) => {
+OrderRouter.post("/updateOrderStatus", auth, async (req, res) => {
     const { _id } = req.body;
     const responseData = {};
     console.log("id", _id);
